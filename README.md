@@ -38,3 +38,16 @@ Start time: ___0930__
 Finish time: __1100 ___
 
 Actual time needed to complete: __1.5hr___
+
+
+1/14 I partnered with Matt
+
+Number and name of feature: ___Feature Two: location____________________________
+
+Estimate of time needed to complete: __120min___
+
+Start time: ___1100__
+
+Finish time: __1300 ___
+
+Actual time needed to complete: __2hr___
