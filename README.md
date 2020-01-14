@@ -6,6 +6,8 @@
 **Author**: Your Name Goes Here
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
+**FrontEnd** https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/
+
 ## Overview
 <!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
 
@@ -27,12 +29,12 @@
 
 1/14 I partnered with Matt
 
-Number and name of feature: ________________________________
+Number and name of feature: ___Feature One: initial set up_____________________________
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: __60min___
 
-Start time: _____
+Start time: ___0930__
 
-Finish time: _____
+Finish time: __1100 ___
 
-Actual time needed to complete: _____
+Actual time needed to complete: __1.5hr___
