@@ -29,7 +29,7 @@
 
 1/14 I partnered with Matt
 
-Number and name of feature: ___Feature One: initial set up_____________________________
+Number and name of feature: ___Lab6: Feature One: initial set up_____________________________
 
 Estimate of time needed to complete: __60min___
 
@@ -42,12 +42,24 @@ Actual time needed to complete: __1.5hr___
 
 1/14 I partnered with Matt
 
-Number and name of feature: ___Feature Two: location____________________________
+Number and name of feature: ___Lab 6: Feature Two: location____________________________
 
 Estimate of time needed to complete: __120min___
 
 Start time: ___1100__
 
 Finish time: __1300 ___
+
+Actual time needed to complete: __2hr___
+
+1/15 I partnered with Harlen
+
+Number and name of feature: ___Lab 6: Feature Three: Weather data____________________________
+
+Estimate of time needed to complete: __120min___
+
+Start time: ___1000__
+
+Finish time: __1200 ___
 
 Actual time needed to complete: __2hr___
