@@ -39,23 +39,23 @@ this.longitude = geoData.lon;
 dataArray.push(this);
 }
 
-function WeatherObject (city, weatherData) {
-  this.
-}
+// function WeatherObject (city, weatherData) {
+//   this.
+// }
 
 app.get('*',(request, response) => {response.status(404).send('this route does not exist')
 });
 // turn the PORT on
 app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));
 
-[
-  {
-    "forecast": "Partly cloudy until afternoon.",
-    "time": "Mon Jan 01 2001"
-  },
-  {
-    "forecast": "Mostly cloudy in the morning.",
-    "time": "Tue Jan 02 2001"
-  },
-  ...
-]
+// [
+//   {
+//     "forecast": "Partly cloudy until afternoon.",
+//     "time": "Mon Jan 01 2001"
+//   },
+//   {
+//     "forecast": "Mostly cloudy in the morning.",
+//     "time": "Tue Jan 02 2001"
+//   },
+//   ...
+// ]
