@@ -18,19 +18,25 @@ app.get('/location',locationhandler);
 //spacing before the arrow function (HL)
 app.get('/weather', weatherhandler);
 
+app.get('*', nonFoundHandler); 
+
 /////////////HANDLER FUNCTIONS//////////
 
 function locationhandler(request,response){
     // console.log(request.query.city);
-
+  try{
     let city = request.query.city;
     const geoData = require('./data/geo.json');
     let geoDataResults = geoData[0];
 
     let locations = new MapObject(city, geoDataResults);
-
+  
     response.send(locations);
     response.status(200).json(locations);
+  }
+  catch (error) {
+    errorHandler ('So sorry', request, response);
+  }
 }
 
 function weatherhandler(request,response){
@@ -40,12 +46,7 @@ function weatherhandler(request,response){
   const weatherData = require('./data/darksky.json');
   let weatherArray = weatherData.daily.data;
 
-  // call constructor
-  // weatherArray.forEach(obj => {
-  //   weatherresponseArray.push(new WeatherObject (obj));
-  // })
-
-  weatherresponseArray = (weatherArray.map(obj => new WeatherObject(obj)));
+  weatherresponseArray = weatherArray.map(obj => new WeatherObject(obj));
 
   // console.log('this is my wweather response array', weatherresponseArray);
 
@@ -53,8 +54,13 @@ function weatherhandler(request,response){
   response.status(200).json(weatherresponseArray);
 }
 
-app.get('*',(request, response) => {response.status(404).send('this route does not exist')
-});
+function errorHandler(error, request, response) { console.log('ERROR',error);
+  response.status(500).send(error);
+}
+
+function nonFoundHandler(request, response) {response.status(404).send('this route does not exist')
+};
+
 
 ////////////// CONSTRUCTORS/////////////////
 
