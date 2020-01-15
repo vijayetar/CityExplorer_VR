@@ -3,6 +3,7 @@
 const express = require('express'); //you have to do npm install
 const app = express();
 require('dotenv').config();
+//spacing consistancy, needs a space after PORT
 const PORT = process.env.PORT|| 3001;
 const cors = require('cors'); //cors is the policeman
 
@@ -23,7 +24,7 @@ app.get('/location',(request,response) => {
 });
 
 // route: to weather
-
+//spacing before the arrow function
 app.get('/weather',(request,response)=> {
   // get data from darksky.json
   const weatherData = require('./data/darksky.json');
@@ -48,6 +49,7 @@ app.get('*',(request, response) => {response.status(404).send('this route does n
 // turn the PORT on
 app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));
 
+//I would delete the zombie code unless you are planning on using it later on
 // [
 //   {
 //     "forecast": "Partly cloudy until afternoon.",
@@ -59,3 +61,4 @@ app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${POR
 //   },
 //   ...
 // ]
+//overall, very well written code, great job!!!
