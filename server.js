@@ -10,7 +10,7 @@ const cors = require('cors');
 
 app.use(cors()); 
 
-//////////////ROUTES/////////////////////////
+/////////////////////////////////////ROUTES/////////////////////////
 // route: to location
 app.get('/location',locationhandler);
 
@@ -20,7 +20,7 @@ app.get('/weather', weatherhandler);
 
 app.get('*', nonFoundHandler); 
 
-/////////////HANDLER FUNCTIONS//////////
+///////////////////////////HANDLER FUNCTIONS////////////////////////////////
 
 function locationhandler(request,response){
     // console.log(request.query.city);
@@ -41,18 +41,25 @@ function locationhandler(request,response){
 
 function weatherhandler(request,response){
   // get data from darksky.json
-  let weatherresponseArray = [];
-  console.log('the weather data is working');
-  const weatherData = require('./data/darksky.json');
-  let weatherArray = weatherData.daily.data;
+  try {
+    let weatherresponseArray = [];
+    console.log('the weather data is working');
+    const weatherData = require('./data/darksky.json');
+    let weatherArray = weatherData.daily.data;
 
-  weatherresponseArray = weatherArray.map(obj => new WeatherObject(obj));
+    weatherresponseArray = weatherArray.map(obj => new WeatherObject(obj));
 
   // console.log('this is my wweather response array', weatherresponseArray);
 
-  response.send(weatherresponseArray);
-  response.status(200).json(weatherresponseArray);
+    response.send(weatherresponseArray);
+    response.status(200).json(weatherresponseArray);
+  }
+  catch (error) {
+    errorHandler ('So sorry', request, response);
+  }
 }
+
+//////////////////////////ERROR HANDLER //////////////////////////////////
 
 function errorHandler(error, request, response) { console.log('ERROR',error);
   response.status(500).send(error);
@@ -62,7 +69,7 @@ function nonFoundHandler(request, response) {response.status(404).send('this rou
 };
 
 
-////////////// CONSTRUCTORS/////////////////
+////////////////////////// CONSTRUCTORS////////////////////////////////////
 
 //constructor function to get the information from geo.json file into the array
 function MapObject (city, geoData) {
