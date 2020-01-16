@@ -15,6 +15,7 @@ let locations = {};
 
 
 /////////////////////////////////////ROUTES/////////////////////////
+
 // app.get('/location',locationHandler);
 app.get('/location',newlocationHandler);
 app.get('/weather', weatherHandler);
@@ -22,7 +23,7 @@ app.use('*', nonFoundHandler);
 app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS////////////////////////////////
-
+// TYLER: consider removing unused code before merging with master :).
 // function locationHandler(request,response){
 //     // console.log(request.query.city);
 //   try{
@@ -39,6 +40,10 @@ app.use(errorHandler);
 //     errorHandler ('So sorry Location handler', request, response);
 //   }
 // }
+
+//TYLER: Vij! This is a redundant function. See how all of this code can live inside the route, itself? 
+//See how this function takes in the exact same arguments as the route? (the (request, response))
+
 function newlocationHandler (request,response){
     let city = request.query.city;
 //     // let {search_query, formatted_query, latitude, longitude} = request.query;
@@ -55,6 +60,7 @@ function newlocationHandler (request,response){
           console.log("I got the newlocationHandler going");
           console.log("these are results", results.body);
           const geoData = results.body[0];
+        //TYLER:Building on previous comment, this new MapObject constructor call is where we can 'outsource' work to a function outside of the route. Its all set up!  
           const mapObject = new MapObject(city, geoData);
           locations[url] = mapObject;
           response.send(mapObject);
