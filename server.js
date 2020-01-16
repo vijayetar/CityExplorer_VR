@@ -43,7 +43,7 @@ function newlocationHandler (request,response){
     let city = request.query.city;
 //     // let {search_query, formatted_query, latitude, longitude} = request.query;
     let key = process.env.LOCATION_IQ_KEY;
-    let url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json/`;
+    let url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
     console.log("I got the newlocationHandler going");
 //     ///////need to caching location before making the url call
     if (locations[url]) {
@@ -77,7 +77,7 @@ function weatherHandler(request,response){
 
     weatherresponseArray = weatherArray.map(obj => new WeatherObject(obj));
 
-  console.log('this is my wweather response array', weatherresponseArray);
+    console.log('this is my wweather response array', weatherresponseArray);
 
     response.send(weatherresponseArray);
     response.status(200).json(weatherresponseArray);
@@ -101,17 +101,16 @@ function nonFoundHandler(request, response) {response.status(404).send('this rou
 
 //constructor function to get the information from geo.json file into the array
 function MapObject (city, geoData) {
-this.search_query = city;
-this.formatted_query = geoData.display_name;
-this.latitude= geoData.lat;
-this.longitude = geoData.long;
+  this.search_query = city;
+  this.formatted_query = geoData.display_name;
+  this.latitude= geoData.lat;
+  this.longitude = geoData.lon;
 }
 
 /// weather constructor
 function WeatherObject (weather) {
   this.forecast = weather.summary;
   let normaltimes = new Date(weather.time*1000).toString().slice(0,15);
-  // console.log('this is the time', normaltimes);
   this.time = normaltimes;
 }
 
