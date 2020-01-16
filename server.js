@@ -30,11 +30,21 @@ function WeatherObject (weather) {
   this.time = new Date(weather.time*1000).toString().slice(0,15);
 }
 
+// event constructor
+function Event(eventData) {
+  this.name = eventData.title;
+  this.event_date = eventData.start_time.slice(0,10);
+  this.link = eventData.url;
+  this.summary = eventData.description;
+}
+
 /////////////////////////////////////ROUTES/////////////////////////
 
 app.get('/location',locationHandler);
 app.get('/weather', weatherHandler);
-app.use('*', nonFoundHandler); 
+app.get('/events', eventHandler);
+
+app.use('*', nonFoundHandler);
 app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
@@ -61,8 +71,8 @@ function locationHandler (request,response){
           response.status(200).json(mapObject);
 
         })
-        .catch(() => {
-          errorHandler ('So sorry Location handler here', request, response);
+        .catch((err) => {
+          errorHandler ('So sorry Location handler here', err);
         })
     }
 }
@@ -83,11 +93,21 @@ function weatherHandler(request,response){
         const weatherresponseArray = weatherobj.body.daily.data.map(obj => new WeatherObject(obj));
         response.status(200).json(weatherresponseArray);
       })
-      .catch((error)  => { 
-        errorHandler ('So sorry Weather handler not working', request, response)
+      .catch((err)  => { 
+        errorHandler ('So sorry Weather handler not working', err)
       });
 }
 
+function eventHandler(request, response) {
+  // let key = ......;
+  let {search_query} = request.query;
+  const eventDataUrl = `http://api.eventful.com/json/events/search?keywords=music&location=${search_query}&app_key=${key}`;
+
+  superagent.get(eventDataUrl)
+    .then(eventData => {
+      let eventdata = JSON.parse(eventData) => {return new Event}
+    })
+}
 // function dbSelect (city) {
 //     let SQL = 'SELECT * FROM city_explorer WHERE location = $1';
 //     let values = [city];
