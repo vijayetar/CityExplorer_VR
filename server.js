@@ -3,26 +3,28 @@
 const express = require('express'); 
 const app = express();
 require('dotenv').config();
-//spacing consistancy, needs a space after PORT(HL)
 const PORT = process.env.PORT || 3001;
-const cors = require('cors'); 
+const superagent = require('superagent');
+const cors = require('cors');
+app.use(cors());  
+const pg = require('pg');
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => console.error(err));
 
+const locations = {};
 
-app.use(cors()); 
 
 /////////////////////////////////////ROUTES/////////////////////////
 // route: to location
-app.get('/location',locationhandler);
-
+// app.get('/location',locationHandler);
+app.get('/location',newlocationHandler);
 // route: to weather
-//spacing before the arrow function (HL)
-app.get('/weather', weatherhandler);
-
+app.get('/weather', weatherHandler);
 app.get('*', nonFoundHandler); 
 
 ///////////////////////////HANDLER FUNCTIONS////////////////////////////////
 
-function locationhandler(request,response){
+function locationHandler(request,response){
     // console.log(request.query.city);
   try{
     let city = request.query.city;
@@ -38,8 +40,19 @@ function locationhandler(request,response){
     errorHandler ('So sorry', request, response);
   }
 }
+function newlocationHandler (request,response){
+  try {
+    let city = request.query.city;
+    let {search_query, formatted_query, latitude, longitude} = request.query;
+    let key = process.env.GEOCODE_API_KEY;
+    const url = ``;
+    if (locations[])
+  }
+  catch {
 
-function weatherhandler(request,response){
+  }
+}
+function weatherHandler(request,response){
   // get data from darksky.json
   try {
     let weatherresponseArray = [];
@@ -58,6 +71,15 @@ function weatherhandler(request,response){
     errorHandler ('So sorry', request, response);
   }
 }
+
+// function newweatherHandler (request, response){
+//   let city = request.query.city;
+//   let latitude = request.query.latitude;
+//   let longitude = request.query.longitude;
+//   let key = process.env.GEOCODE_API_KEY;
+//   const url = ``;
+
+// }
 
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
@@ -82,16 +104,29 @@ this.longitude = geoData.lon;
 /// weather constructor
 function WeatherObject (weather) {
   this.forecast = weather.summary;
-  let normaltimes = Date(weather.time*1000);
-  normaltimes = normaltimes.slice(0,15);
+  let normaltimes = new Date(weather.time*1000).toString().slice(0,15);
   // console.log('this is the time', normaltimes);
   this.time = normaltimes;
 }
 
 
+
+////// SEQUEL APP.GET //////////////////////
+// app.get('/add',(request,response) => {
+//   let firstName = request.query.first;
+//   let lastName = request.query.last;
+//   console.log('firstName', firstName, 'lastName', lastName);
+//   let sql = 'INSERT INTO people (first_name, last_name) VALUES ('$1', '$2');';
+//   let safeValues = [firstName, lastName];
+//   client.query(sql, safeValues)
+//     .then(results => {
+//       response.status(200).json(results);
+//     })
+//     .catch(error => console.error('error:', error));
+})
+
 // turn the PORT on
 app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));
-
-//I would delete the zombie code unless you are planning on using it later on (HL)
-
-//overall, very well written code, great job!!! (HL)
+// client.connect()
+// .then(app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));)
+// .catch(error) => console.error(err);
