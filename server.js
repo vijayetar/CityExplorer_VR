@@ -7,9 +7,9 @@ const PORT = process.env.PORT || 3001;
 const superagent = require('superagent');
 const cors = require('cors');
 app.use(cors());  
-// const pg = require('pg');
-// const client = new pg.Client(process.env.DATABASE_URL);
-// client.on('error', err => console.error(err));
+const pg = require('pg');
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => console.error(err));
 
 let cachedLocations = {};
 
@@ -75,19 +75,36 @@ function weatherHandler(request,response){
     let key = process.env.DARKSKY_API_KEY;
     let url = `https://api.darksky.net/forecast/${key}/${latitude},${longitude}`;
     console.log('url works fine here', url);
-
+    // dbSelect(city);
     superagent.get(url)
       .then(weatherobj =>  {
         console.log('what is breakkng this?');
         console.log('this is my wwwweather response array', weatherobj.body.daily.data);
         const weatherresponseArray = weatherobj.body.daily.data.map(obj => new WeatherObject(obj));
-        // response.send(weatherresponseArray);
         response.status(200).json(weatherresponseArray);
       })
       .catch((error)  => { 
         errorHandler ('So sorry Weather handler not working', request, response)
       });
 }
+
+// function dbSelect (city) {
+//     let SQL = 'SELECT * FROM city_explorer WHERE location = $1';
+//     let values = [city];
+//     client.query (SQL, values)
+//       .then (results  => console.log ('this is the city:',results))
+//       .catch(() => console.log('ERROR: this is in the db did not work'));
+// }
+
+// function dbInsert () {
+//   /// if match present then insert it into the db
+//   let SQL = `INSERT INTO city_explorer (location, latitude, longitude) VALUES ($1, $2, $3) RETURNING *`;
+//   let safeValues = [location, latitude, longitude];
+//   client.query(SQL, safeValues)
+//     .then( results => {
+//       response.status(200).json (results);
+//     })
+// }
 
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
@@ -99,22 +116,16 @@ function nonFoundHandler(request, response) {response.status(404).send('this rou
 };
 
 
-////// SEQUEL APP.GET //////////////////////
-// app.get('/add',(request,response) => {
-//   let firstName = request.query.first;
-//   let lastName = request.query.last;
-//   console.log('firstName', firstName, 'lastName', lastName);
-//   let sql = 'INSERT INTO people (first_name, last_name) VALUES ('$1', '$2');';
-//   let safeValues = [firstName, lastName];
-//   client.query(sql, safeValues)
-//     .then(results => {
-//       response.status(200).json(results);
-//     })
-//     .catch(error => console.error('error:', error));
-// })
+app.listen(PORT, () => {
+  console.log(`app is up and running on city explorer: ${PORT}`)});
 
-// turn the PORT on
-app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));
+// // Connect to DB and Start the Web Server
 // client.connect()
-// .then(app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));)
-// .catch(error) => console.error(err);
+//   .then( () => {
+//     app.listen(PORT, () => {
+//       console.log(`app is up and running on city explorer: ${PORT}`);
+//     });
+//   })
+//   .catch(err => {
+//     throw `PG Startup Error: ${err.message}`;
+//   });

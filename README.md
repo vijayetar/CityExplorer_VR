@@ -96,3 +96,23 @@ Start time: ___1230_
 Finish time: __1330 ___
 
 Actual time needed to complete: __60min__
+
+Number and name of feature: ___Lab 7: Feature Three____Weather_______________________
+
+Estimate of time needed to complete: __60min___
+
+Start time: ___0930_
+
+Finish time: __1130 ___
+
+Actual time needed to complete: __120min__
+
+Number and name of feature: ___Lab 8: Feature One____Database Setup_______________________
+
+Estimate of time needed to complete: __30min___
+
+Start time: ___1130_
+
+Finish time: __ ___
+
+Actual time needed to complete: ____
