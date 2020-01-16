@@ -63,3 +63,36 @@ Start time: ___1000__
 Finish time: __1200 ___
 
 Actual time needed to complete: __2hr___
+
+
+
+Number and name of feature: ___Lab 6: Feature Four_ERRORS__________________________
+
+Estimate of time needed to complete: __20min___
+
+Start time: ___1330_
+
+Finish time: __1400 ___
+
+Actual time needed to complete: __30min__
+
+
+Number and name of feature: ___Lab 7: Feature One____Data Formatting_______________________
+
+Estimate of time needed to complete: __30min___
+
+Start time: ___1230_
+
+Finish time: __1330 ___
+
+Actual time needed to complete: __60min__
+
+Number and name of feature: ___Lab 7: Feature Two____Locations_______________________
+
+Estimate of time needed to complete: __30min___
+
+Start time: ___1230_
+
+Finish time: __1330 ___
+
+Actual time needed to complete: __60min__

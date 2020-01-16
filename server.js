@@ -7,51 +7,66 @@ const PORT = process.env.PORT || 3001;
 const superagent = require('superagent');
 const cors = require('cors');
 app.use(cors());  
-const pg = require('pg');
-const client = new pg.Client(process.env.DATABASE_URL);
-client.on('error', err => console.error(err));
+// const pg = require('pg');
+// const client = new pg.Client(process.env.DATABASE_URL);
+// client.on('error', err => console.error(err));
 
-const locations = {};
+let locations = {};
 
 
 /////////////////////////////////////ROUTES/////////////////////////
-// route: to location
 // app.get('/location',locationHandler);
 app.get('/location',newlocationHandler);
-// route: to weather
 app.get('/weather', weatherHandler);
-app.get('*', nonFoundHandler); 
+app.use('*', nonFoundHandler); 
+app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS////////////////////////////////
 
-function locationHandler(request,response){
-    // console.log(request.query.city);
-  try{
-    let city = request.query.city;
-    const geoData = require('./data/geo.json');
-    let geoDataResults = geoData[0];
+// function locationHandler(request,response){
+//     // console.log(request.query.city);
+//   try{
+//     let city = request.query.city;
+//     const geoData = require('./data/geo.json');
+//     let geoDataResults = geoData[0];
 
-    let locations = new MapObject(city, geoDataResults);
+//     let locations = new MapObject(city, geoDataResults);
   
-    response.send(locations);
-    response.status(200).json(locations);
-  }
-  catch (error) {
-    errorHandler ('So sorry', request, response);
-  }
-}
+//     response.send(locations);
+//     response.status(200).json(locations);
+//   }
+//   catch (error) {
+//     errorHandler ('So sorry Location handler', request, response);
+//   }
+// }
 function newlocationHandler (request,response){
-  try {
     let city = request.query.city;
-    let {search_query, formatted_query, latitude, longitude} = request.query;
-    let key = process.env.GEOCODE_API_KEY;
-    const url = ``;
-    if (locations[])
-  }
-  catch {
+//     // let {search_query, formatted_query, latitude, longitude} = request.query;
+    let key = process.env.LOCATION_IQ_KEY;
+    let url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json/`;
+    console.log("I got the newlocationHandler going");
+//     ///////need to caching location before making the url call
+    if (locations[url]) {
+      response.send(locations[url]);
+    }
+    else {
+      superagent.get(url)
+        .then(results => {
+          console.log("I got the newlocationHandler going");
+          console.log("these are results", results.body);
+          const geoData = results.body[0];
+          const mapObject = new MapObject(city, geoData);
+          locations[url] = mapObject;
+          response.send(mapObject);
+          response.status(200).json(mapObject);
 
-  }
+        })
+        .catch((error) => {
+          errorHandler ('So sorry Location handler here', request, response);
+        })
+    }
 }
+
 function weatherHandler(request,response){
   // get data from darksky.json
   try {
@@ -62,24 +77,15 @@ function weatherHandler(request,response){
 
     weatherresponseArray = weatherArray.map(obj => new WeatherObject(obj));
 
-  // console.log('this is my wweather response array', weatherresponseArray);
+  console.log('this is my wweather response array', weatherresponseArray);
 
     response.send(weatherresponseArray);
     response.status(200).json(weatherresponseArray);
   }
   catch (error) {
-    errorHandler ('So sorry', request, response);
+    errorHandler ('So sorry Weather handler', request, response);
   }
 }
-
-// function newweatherHandler (request, response){
-//   let city = request.query.city;
-//   let latitude = request.query.latitude;
-//   let longitude = request.query.longitude;
-//   let key = process.env.GEOCODE_API_KEY;
-//   const url = ``;
-
-// }
 
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
@@ -98,7 +104,7 @@ function MapObject (city, geoData) {
 this.search_query = city;
 this.formatted_query = geoData.display_name;
 this.latitude= geoData.lat;
-this.longitude = geoData.lon;
+this.longitude = geoData.long;
 }
 
 /// weather constructor
@@ -123,7 +129,7 @@ function WeatherObject (weather) {
 //       response.status(200).json(results);
 //     })
 //     .catch(error => console.error('error:', error));
-})
+// })
 
 // turn the PORT on
 app.listen(PORT, ()=> console.log(`app is up and running on city explorer: ${PORT}`));
