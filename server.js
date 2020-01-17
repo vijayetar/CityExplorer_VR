@@ -57,7 +57,7 @@ function locationHandler (request,response){
     let safeValues = [city];
     client.query (sql, safeValues)
       .then (results  => {
-        console.log ('this is the city:',results);
+        console.log ('this is the city:',results,'this is rows', results.rows);
         if (results.rows.length>0){
           console.log('found results in db');
           response.send(results.rows[0]);
