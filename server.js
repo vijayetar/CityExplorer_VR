@@ -13,6 +13,8 @@ client.on('error', err => console.error(err));
 
 let cachedLocations = {};
 
+////////////////////LIBRARIES /////////////////////////////////////
+
 
 ////////////////////////// CONSTRUCTORS////////////////////////////////////
 
@@ -62,12 +64,8 @@ function locationHandler (request,response){
       superagent.get(url)
         .then(locresults => {
           console.log("I got the newlocationHandler going");
-          // console.log("these are results", locresults.body);
           const geoData = locresults.body[0];
           const mapObject = new MapObject(city, geoData);
-          // console.log("these are MapObject", mapObject);
-          cachedLocations[url] = mapObject;
-          // response.send(mapObject);
           response.status(200).json(mapObject);
 
         })
@@ -108,23 +106,35 @@ function eventHandler(request, response) {
       let eventdata = JSON.parse(eventData) => {return new Event}
     })
 }
-// function dbSelect (city) {
-//     let SQL = 'SELECT * FROM city_explorer WHERE location = $1';
-//     let values = [city];
-//     client.query (SQL, values)
-//       .then (results  => console.log ('this is the city:',results))
-//       .catch(() => console.log('ERROR: this is in the db did not work'));
-// }
+function dbSelect (city) {
+    let sql = 'SELECT * FROM city_explorer WHERE location = $1';
+    let safeValues = [city];
+    client.query (SQL, safeValues)
+      .then (results  => {
+        console.log ('this is the city:',results.rows);
+        if (results.rows.length>0){
+          console.log('found results in db');
+          response.send(results.rows[0]);
+        } 
+        else {
+          console.log('could not find in the db going to the api');
+          let key = ..
+        } 
+      
+      });
 
-// function dbInsert () {
-//   /// if match present then insert it into the db
-//   let SQL = `INSERT INTO city_explorer (location, latitude, longitude) VALUES ($1, $2, $3) RETURNING *`;
-//   let safeValues = [location, latitude, longitude];
-//   client.query(SQL, safeValues)
-//     .then( results => {
-//       response.status(200).json (results);
-//     })
-// }
+      .catch(() => console.log('ERROR: this is in the db did not work'));
+}
+
+function dbInsert () {
+  /// if match present then insert it into the db
+  let sql2 = `INSERT INTO city_explorer (location, latitude, longitude) VALUES ($1, $2, $3):`;
+  let safeValues = [location, latitude, longitude];
+  client.query(SQL, safeValues)
+    .then( results => {
+      response.status(200).json (results);
+    })
+}
 
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
@@ -136,16 +146,16 @@ function nonFoundHandler(request, response) {response.status(404).send('this rou
 };
 
 
-app.listen(PORT, () => {
-  console.log(`app is up and running on city explorer: ${PORT}`)});
+// app.listen(PORT, () => {
+//   console.log(`app is up and running on city explorer: ${PORT}`)});
 
 // // Connect to DB and Start the Web Server
-// client.connect()
-//   .then( () => {
-//     app.listen(PORT, () => {
-//       console.log(`app is up and running on city explorer: ${PORT}`);
-//     });
-//   })
-//   .catch(err => {
-//     throw `PG Startup Error: ${err.message}`;
-//   });
+client.connect()
+  .then( () => {
+    app.listen(PORT, () => {
+      console.log(`app is up and running on city explorer: ${PORT}`);
+    });
+  })
+  .catch(err => {
+    throw `PG Startup Error: ${err.message}`;
+  });
