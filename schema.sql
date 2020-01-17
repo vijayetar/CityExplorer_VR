@@ -8,4 +8,4 @@ latitude VARCHAR(100) NOT NULL,
 longitude VARCHAR(100) NOT NULL
 );
 
-INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ('Seattle','hello there', 'hello there', 'hello');
+INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ('xyz','hello there', '0', '0');
