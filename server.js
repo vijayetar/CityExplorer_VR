@@ -11,7 +11,7 @@ const pg = require('pg');
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.error(err));
 
-let cachedLocations = {};
+// let cachedLocations = {};
 
 ////////////////////LIBRARIES /////////////////////////////////////
 
@@ -44,7 +44,7 @@ function Event(eventData) {
 
 app.get('/location',locationHandler);
 app.get('/weather', weatherHandler);
-app.get('/events', eventHandler);
+// app.get('/events', eventHandler);
 
 app.use('*', nonFoundHandler);
 app.use(errorHandler);
@@ -53,26 +53,41 @@ app.use(errorHandler);
 
 function locationHandler (request,response){
     let city = request.query.city;
-    let key = process.env.LOCATION_IQ_KEY;
-    let url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
-    
-///need to caching location using url before making the url call, it can also be done with object
-    if (cachedLocations[url]) {
-      response.send(cachedLocations[url]);
-    }
-    else {
-      superagent.get(url)
-        .then(locresults => {
-          console.log("I got the newlocationHandler going");
-          const geoData = locresults.body[0];
-          const mapObject = new MapObject(city, geoData);
-          response.status(200).json(mapObject);
+    let sql = 'SELECT * FROM city_explorer WHERE search_query = $1;';
+    let safeValues = [city];
+    client.query (sql, safeValues)
+      .then (results  => {
+        console.log ('this is the city:',results,'this is rows', results.rows);
+        if (results.rows.length>0){
+          console.log('found results in db');
+          response.send(results.rows[0]);
+          return;
+        }
+        else {
+          console.log('could not find in the db going to the api');
+          let key = process.env.LOCATION_IQ_KEY;
+          let url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json&limit=1`;
 
-        })
-        .catch((err) => {
-          errorHandler ('So sorry Location handler here', err);
-        })
-    }
+          superagent.get(url)
+          .then(locresults => {
+            console.log("I got the newlocationHandler going");
+            const geoData = locresults.body[0];
+            console.log('this is the geoData', geoData);
+            const mapObject = new MapObject(city, geoData);
+            console.log('this is ')
+            let sql2 = `INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
+            let safeValues = [mapObject.search_query, mapObject.formatted_query, mapObject.latitude, mapObject.longitude];
+            client.query(sql2, safeValues);
+            response.status(200).json(mapObject);
+          })
+          .catch((err) => {
+            errorHandler ('So sorry deeper Location handler here', err);
+          })
+        }
+      })
+      .catch((err) => {
+        errorHandler ('So sorry outside Location handler here', err);
+      })
 }
 
 function weatherHandler(request,response){
@@ -83,11 +98,10 @@ function weatherHandler(request,response){
     let key = process.env.DARKSKY_API_KEY;
     let url = `https://api.darksky.net/forecast/${key}/${latitude},${longitude}`;
     console.log('url works fine here', url);
-    // dbSelect(city);
     superagent.get(url)
       .then(weatherobj =>  {
         console.log('what is breakkng this?');
-        console.log('this is my wwwweather response array', weatherobj.body.daily.data);
+        // console.log('this is my wwwweather response array', weatherobj.body.daily.data);
         const weatherresponseArray = weatherobj.body.daily.data.map(obj => new WeatherObject(obj));
         response.status(200).json(weatherresponseArray);
       })
@@ -96,49 +110,10 @@ function weatherHandler(request,response){
       });
 }
 
-function eventHandler(request, response) {
-  // let key = ......;
-  let {search_query} = request.query;
-  const eventDataUrl = `http://api.eventful.com/json/events/search?keywords=music&location=${search_query}&app_key=${key}`;
-
-  superagent.get(eventDataUrl)
-    .then(eventData => {
-      let eventdata = JSON.parse(eventData) => {return new Event}
-    })
-}
-function dbSelect (city) {
-    let sql = 'SELECT * FROM city_explorer WHERE location = $1';
-    let safeValues = [city];
-    client.query (SQL, safeValues)
-      .then (results  => {
-        console.log ('this is the city:',results.rows);
-        if (results.rows.length>0){
-          console.log('found results in db');
-          response.send(results.rows[0]);
-        } 
-        else {
-          console.log('could not find in the db going to the api');
-          let key = ..
-        } 
-      
-      });
-
-      .catch(() => console.log('ERROR: this is in the db did not work'));
-}
-
-function dbInsert () {
-  /// if match present then insert it into the db
-  let sql2 = `INSERT INTO city_explorer (location, latitude, longitude) VALUES ($1, $2, $3):`;
-  let safeValues = [location, latitude, longitude];
-  client.query(SQL, safeValues)
-    .then( results => {
-      response.status(200).json (results);
-    })
-}
-
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
-function errorHandler(error, request, response) { console.log('ERROR',error);
+function errorHandler(error, request, response) {
+  console.log('ERROR',error);
   response.status(500).send(error);
 }
 
@@ -158,4 +133,4 @@ client.connect()
   })
   .catch(err => {
     throw `PG Startup Error: ${err.message}`;
-  });
+  })

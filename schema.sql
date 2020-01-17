@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS city_explorer;
+
 CREATE TABLE city_explorer (
 id SERIAL PRIMARY KEY NOT NULL,
 search_query VARCHAR(255) NOT NULL,
@@ -7,4 +8,4 @@ latitude VARCHAR(100) NOT NULL,
 longitude VARCHAR(100) NOT NULL
 );
 
-INSERT INTO city_explorer (location, latitude, longitude) VALUES ('Seattle','hello there', 'hello there');
+INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ('Seattle','hello there', 'hello there', 'hello');
