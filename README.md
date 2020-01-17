@@ -111,8 +111,18 @@ Number and name of feature: ___Lab 8: Feature One____Database Setup_____________
 
 Estimate of time needed to complete: __30min___
 
-Start time: ___1130_
+Start time: ___1130_1/16
 
-Finish time: __ ___
+Finish time: __0930 1/17___
 
-Actual time needed to complete: ____
+Actual time needed to complete: _One day +___
+
+Number and name of feature: ___Lab 8: Feature Two____Heroku Setup_______________________
+
+Estimate of time needed to complete: __60min___
+
+Start time: ___0930
+
+Finish time: __1230___
+
+Actual time needed to complete: _3hours___
