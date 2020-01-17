@@ -8,7 +8,7 @@ const superagent = require('superagent');
 const cors = require('cors');
 app.use(cors());  
 const pg = require('pg');
-const client = new pg.Client(process.env.HEROKU_POSTGRESQL_ONYX_URL);
+const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.error(err));
 
 // let cachedLocations = {};
@@ -81,12 +81,12 @@ function locationHandler (request,response){
             response.status(200).json(mapObject);
           })
           .catch((err) => {
-            errorHandler ('So sorry deeper Location handler here', err);
+            errorHandler ('So sorry deeper Location handler here', request, response);
           })
         }
       })
       .catch((err) => {
-        errorHandler ('So sorry outside Location handler here', err);
+        errorHandler ('So sorry outside Location handler here', request, response);
       })
 }
 
@@ -106,7 +106,7 @@ function weatherHandler(request,response){
         response.status(200).json(weatherresponseArray);
       })
       .catch((err)  => { 
-        errorHandler ('So sorry Weather handler not working', err)
+        errorHandler ('So sorry Weather handler not working', request, response)
       });
 }
 
