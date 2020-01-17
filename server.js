@@ -13,6 +13,8 @@ client.on('error', err => console.error(err));
 
 let cachedLocations = {};
 
+////////////////////LIBRARIES /////////////////////////////////////
+
 
 ////////////////////////// CONSTRUCTORS////////////////////////////////////
 
@@ -30,11 +32,21 @@ function WeatherObject (weather) {
   this.time = new Date(weather.time*1000).toString().slice(0,15);
 }
 
+// event constructor
+function Event(eventData) {
+  this.name = eventData.title;
+  this.event_date = eventData.start_time.slice(0,10);
+  this.link = eventData.url;
+  this.summary = eventData.description;
+}
+
 /////////////////////////////////////ROUTES/////////////////////////
 
 app.get('/location',locationHandler);
 app.get('/weather', weatherHandler);
-app.use('*', nonFoundHandler); 
+app.get('/events', eventHandler);
+
+app.use('*', nonFoundHandler);
 app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
@@ -52,17 +64,13 @@ function locationHandler (request,response){
       superagent.get(url)
         .then(locresults => {
           console.log("I got the newlocationHandler going");
-          // console.log("these are results", locresults.body);
           const geoData = locresults.body[0];
           const mapObject = new MapObject(city, geoData);
-          // console.log("these are MapObject", mapObject);
-          cachedLocations[url] = mapObject;
-          // response.send(mapObject);
           response.status(200).json(mapObject);
 
         })
-        .catch(() => {
-          errorHandler ('So sorry Location handler here', request, response);
+        .catch((err) => {
+          errorHandler ('So sorry Location handler here', err);
         })
     }
 }
@@ -83,28 +91,50 @@ function weatherHandler(request,response){
         const weatherresponseArray = weatherobj.body.daily.data.map(obj => new WeatherObject(obj));
         response.status(200).json(weatherresponseArray);
       })
-      .catch((error)  => { 
-        errorHandler ('So sorry Weather handler not working', request, response)
+      .catch((err)  => { 
+        errorHandler ('So sorry Weather handler not working', err)
       });
 }
 
-// function dbSelect (city) {
-//     let SQL = 'SELECT * FROM city_explorer WHERE location = $1';
-//     let values = [city];
-//     client.query (SQL, values)
-//       .then (results  => console.log ('this is the city:',results))
-//       .catch(() => console.log('ERROR: this is in the db did not work'));
-// }
+function eventHandler(request, response) {
+  // let key = ......;
+  let {search_query} = request.query;
+  const eventDataUrl = `http://api.eventful.com/json/events/search?keywords=music&location=${search_query}&app_key=${key}`;
 
-// function dbInsert () {
-//   /// if match present then insert it into the db
-//   let SQL = `INSERT INTO city_explorer (location, latitude, longitude) VALUES ($1, $2, $3) RETURNING *`;
-//   let safeValues = [location, latitude, longitude];
-//   client.query(SQL, safeValues)
-//     .then( results => {
-//       response.status(200).json (results);
-//     })
-// }
+  superagent.get(eventDataUrl)
+    .then(eventData => {
+      let eventdata = JSON.parse(eventData) => {return new Event}
+    })
+}
+function dbSelect (city) {
+    let sql = 'SELECT * FROM city_explorer WHERE location = $1';
+    let safeValues = [city];
+    client.query (SQL, safeValues)
+      .then (results  => {
+        console.log ('this is the city:',results.rows);
+        if (results.rows.length>0){
+          console.log('found results in db');
+          response.send(results.rows[0]);
+        } 
+        else {
+          console.log('could not find in the db going to the api');
+          let key = ..
+        } 
+      
+      });
+
+      .catch(() => console.log('ERROR: this is in the db did not work'));
+}
+
+function dbInsert () {
+  /// if match present then insert it into the db
+  let sql2 = `INSERT INTO city_explorer (location, latitude, longitude) VALUES ($1, $2, $3):`;
+  let safeValues = [location, latitude, longitude];
+  client.query(SQL, safeValues)
+    .then( results => {
+      response.status(200).json (results);
+    })
+}
 
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
@@ -116,16 +146,16 @@ function nonFoundHandler(request, response) {response.status(404).send('this rou
 };
 
 
-app.listen(PORT, () => {
-  console.log(`app is up and running on city explorer: ${PORT}`)});
+// app.listen(PORT, () => {
+//   console.log(`app is up and running on city explorer: ${PORT}`)});
 
 // // Connect to DB and Start the Web Server
-// client.connect()
-//   .then( () => {
-//     app.listen(PORT, () => {
-//       console.log(`app is up and running on city explorer: ${PORT}`);
-//     });
-//   })
-//   .catch(err => {
-//     throw `PG Startup Error: ${err.message}`;
-//   });
+client.connect()
+  .then( () => {
+    app.listen(PORT, () => {
+      console.log(`app is up and running on city explorer: ${PORT}`);
+    });
+  })
+  .catch(err => {
+    throw `PG Startup Error: ${err.message}`;
+  });
