@@ -126,3 +126,23 @@ Start time: ___0930
 Finish time: __1230___
 
 Actual time needed to complete: _3hours___
+
+Number and name of feature: ___Lab 7: Feature Four____Eventful Set up_______________________
+
+Estimate of time needed to complete: __2hours___
+
+Start time: ___2030
+
+Finish time: __2130___
+
+Actual time needed to complete: _1hours___
+
+Number and name of feature: ___Lab 9: Feature One____Movies_______________________
+
+Estimate of time needed to complete: __1hour___
+
+Start time: ___2220
+
+Finish time: _____
+
+Actual time needed to complete: ____
