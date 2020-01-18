@@ -38,11 +38,25 @@ function Event(eventData) {
   this.summary = eventData.description;
 }
 
+// movie constructor
+
+function MoviesInfo (movieData) {
+  this.title = movieData.original_title;
+  this.overview = movieData.overview;
+  this.average_votes = movieData.vote_average;
+  this.total_votes = movieData.vote_count;
+  this.image_url = `https://image.tmdb.org/t/p/w500${movieData.backdrop_path}`;
+  this.popularity = movieData.popularity;
+  this.released_on = movieData.release_date;
+}
+
+
 /////////////////////////////////////ROUTES/////////////////////////
 
 app.get('/location',locationHandler);
 app.get('/weather', weatherHandler);
 app.get('/events', eventHandler);
+app.get('/movies', moviesHandler);
 
 app.use('*', nonFoundHandler);
 app.use(errorHandler);
@@ -109,7 +123,7 @@ function weatherHandler(request,response){
 }
 
 function eventHandler(request,response){
-  // console.log('running the eventful handler',request.query.search_query);
+  console.log('running the eventful handler',request.query.search_query);
   let city = request.query.search_query;
   let eventful_key = process.env.EVENTFUL_API_KEY;
   let event_url = `http://api.eventful.com/json/events/search?keywords=music&location=${city}&app_key=${eventful_key}`;
@@ -117,13 +131,27 @@ function eventHandler(request,response){
   .then (eventfulresults => {
     let eventfulparsedresults = JSON.parse(eventfulresults.text);
     let eventfulparsedresultsArray = eventfulparsedresults.events.event;
-    console.log(`eventful results for ${city}`, eventfulparsedresultsArray);
+    // console.log(`eventful results for ${city}`, eventfulparsedresultsArray);
     const eventfulresultsArray = eventfulparsedresultsArray.map((obj) => new Event(obj));
     response.status(200).json(eventfulresultsArray);
   })
   .catch(() => {
     errorHandler ('So, sorry, the eventful Handler is not working', request, response)
   });
+}
+
+function moviesHandler(request,response){
+  let city = request.query.search_query;
+  let moviesdb_key = process.env.MOVIE_API_KEY;
+  let movies_url = `https://api.themoviedb.org/3/search/movie?api_key=${moviesdb_key}&language=en-US&query=${city}`;
+  superagent.get(movies_url)
+    .then (allmovieresults => {
+      console.log('these are movie results in the body', allmovieresults.body);
+      let movieresults = allmovieresults.body.results;
+      const movieresultsArray = movieresults.map((movieobj) => new MoviesInfo(movieobj));
+      response.status(200).json(movieresultsArray);
+    })
+    .catch(() => errorHandler ('So sorry, the movie handler is not working', request, response));
 }
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
