@@ -7,15 +7,14 @@ const PORT = process.env.PORT || 3001;
 const superagent = require('superagent');
 const cors = require('cors');
 app.use(cors());  
+const client = require('./lib/global/client');
 
 ///////////////////////////LIBRARIES /////////////////////////////////////
 //global
-const client = require('./lib/global/client');
 const constructNewArray = require('./lib/global/constructorArray function');
 const errorHandler = require('./lib/global/errorhandler');
 
 //constructors
-const MoviesInfo = require('./lib/movies/movies_MoviesInfo_constructor');
 const YelpReviews = require('./lib/yelp/yelp_YelpReviews_constructor');
 const Trails = require('./lib/trails/trails_Trails_constructor');
 
@@ -26,6 +25,8 @@ const locationHandler = require('./lib/locations/location_handler');
 const weatherHandler = require('./lib/weather/weather_weatherHandler');
 
 const eventHandler = require('./lib/events/events_eventHandler');
+
+const moviesHandler = require('./lib/movies/movies_moviesHandler');
 
 /////////////////////////////////////ROUTES/////////////////////////
 app.get('/location',locationHandler);
@@ -40,19 +41,6 @@ app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
 
-function moviesHandler(request,response){
-  let city = request.query.search_query;
-  let moviesdb_key = process.env.MOVIE_API_KEY;
-  let movies_url = `https://api.themoviedb.org/3/search/movie?api_key=${moviesdb_key}&language=en-US&query=${city}`;
-  superagent.get(movies_url)
-    .then (allmovieresults => {
-      // console.log('these are movie results in the body', allmovieresults.body);
-      let movieresults = allmovieresults.body.results;
-      const movieresultsArray = constructNewArray (movieresults, MoviesInfo);
-      response.status(200).json(movieresultsArray);
-    })
-    .catch(() => errorHandler ('So sorry, the movie handler is not working', request, response));
-}
 
 function yelpHandler (request, response) {
   let city = request.query.search_query;
