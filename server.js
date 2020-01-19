@@ -15,7 +15,6 @@ const constructNewArray = require('./lib/global/constructorArray function');
 const errorHandler = require('./lib/global/errorhandler');
 
 //constructors
-// const MapObject = require('./lib/locations/location_MapObject_constructor');
 const WeatherObject = require('./lib/weather/weather_WeatherObject_constructor');
 const Event = require('./lib/events/events_Event_constructor');
 const MoviesInfo = require('./lib/movies/movies_MoviesInfo_constructor');
@@ -25,6 +24,8 @@ const Trails = require('./lib/trails/trails_Trails_constructor');
 //handlers
 
 const locationHandler = require('./lib/locations/location_handler');
+
+const weatherHandler = require('./lib/weather/weather_weatherHandler');
 
 /////////////////////////////////////ROUTES/////////////////////////
 app.get('/location',locationHandler);
@@ -39,62 +40,23 @@ app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
 
-// function locationHandler (request,response){
-//   let city = request.query.city;
-//   let sql = 'SELECT * FROM city_explorer WHERE search_query = $1;';
-//   let safeValues = [city];
-//   client.query (sql, safeValues)
-//     .then (results  => {
-//       // console.log ('this is the city:',results,'this is rows', results.rows);
-//       if (results.rows.length>0){
-//         console.log('found results in db');
-//         response.send(results.rows[0]);
-//         return;
-//       }
-//       else {
-//         console.log('could not find in the db going to the api');
-//         let locationIQ_key = process.env.LOCATION_IQ_KEY;
-//         let locationIQ_url = `https://us1.locationiq.com/v1/search.php?key=${locationIQ_key}&q=${city}&format=json&limit=1`;
-
-//         superagent.get (locationIQ_url)
-//         .then(locresults => {
-//           console.log("I got the newlocationHandler going");
-//           const geoData = locresults.body[0];
-//           console.log('this is the geoData', geoData);
-//           const mapObject = new MapObject(city, geoData);
-//           console.log('this is ')
-//           let sql2 = `INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
-//           let safeValues = [mapObject.search_query, mapObject.formatted_query, mapObject.latitude, mapObject.longitude];
-//           client.query(sql2, safeValues);
-//           response.status(200).json(mapObject);
-//         })
-//         .catch(() => {
-//           errorHandler ('So sorry deeper Location handler here', request, response);
-//         })
-//       }
-//     })
-//     .catch(() => {
-//       errorHandler ('So sorry outside Location handler here', request, response);
-//     })
+// function weatherHandler(request,response){
+//   // get data from darksky.json
+//     console.log('the weather data is working');
+//     let latitude = request.query.latitude;
+//     let longitude = request.query.longitude;
+//     let darkSky_key = process.env.DARKSKY_API_KEY;
+//     let darkSky_url = `https://api.darksky.net/forecast/${darkSky_key}/${latitude},${longitude}`;
+//     superagent.get(darkSky_url)
+//       .then(weatherobj =>  {
+//         const weatherresponseData = weatherobj.body.daily.data;
+//         const weatherresponseArray = constructNewArray(weatherresponseData, WeatherObject);
+//         response.status(200).json(weatherresponseArray);
+//       })
+//       .catch(()  => { 
+//         errorHandler ('So sorry Weather handler not working', request, response)
+//       });
 // }
-
-function weatherHandler(request,response){
-  // get data from darksky.json
-    console.log('the weather data is working');
-    let latitude = request.query.latitude;
-    let longitude = request.query.longitude;
-    let darkSky_key = process.env.DARKSKY_API_KEY;
-    let darkSky_url = `https://api.darksky.net/forecast/${darkSky_key}/${latitude},${longitude}`;
-    superagent.get(darkSky_url)
-      .then(weatherobj =>  {
-        const weatherresponseData = weatherobj.body.daily.data;
-        const weatherresponseArray = constructNewArray(weatherresponseData, WeatherObject);
-        response.status(200).json(weatherresponseArray);
-      })
-      .catch(()  => { 
-        errorHandler ('So sorry Weather handler not working', request, response)
-      });
-}
 
 function eventHandler(request,response){
   console.log('running the eventful handler',request.query.search_query);
@@ -171,6 +133,6 @@ client.connect()
       console.log(`app is up and running on city explorer: ${PORT}`);
     });
   })
-  .catch(err => {
-    throw `PG Startup Error: ${err.message}`;
+  .catch(error => {
+    throw `PG Startup Error: ${error.message}`;
   })
