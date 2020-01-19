@@ -143,6 +143,16 @@ Estimate of time needed to complete: __1hour___
 
 Start time: ___2220
 
+Finish time: __2250___
+
+Actual time needed to complete: _30min___
+
+Number and name of feature: ___Lab 9: Feature Two____Yelp_______________________
+
+Estimate of time needed to complete: __1hour___
+
+Start time: ___1000
+
 Finish time: _____
 
 Actual time needed to complete: ____
