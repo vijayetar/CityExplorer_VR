@@ -59,6 +59,7 @@ function YelpReviews (yelpData) {
   this.url = yelpData.url;
 }
 
+//new trail constructor
 function Trails (traildata) {
   this.name = traildata.name;
   this.location = traildata.location;
@@ -72,18 +73,12 @@ function Trails (traildata) {
   this.condition_time = traildata.conditionDate.slice(12,21);
 }
 
-// "condition_date": "2018-07-21",
-// "condition_time": "0:00:00 
-
-// conditionDate: '1970-01-01 00:00:00'
-
 /////////////////////////////////////ROUTES/////////////////////////
-
 app.get('/location',locationHandler);
 app.get('/weather', weatherHandler);
 app.get('/events', eventHandler);
 app.get('/movies', moviesHandler);
-// app.get('/yelp', yelpHandler);
+app.get('/yelp', yelpHandler);
 app.get('/trails', trailHandler);
 
 app.use('*', nonFoundHandler);
@@ -140,7 +135,6 @@ function weatherHandler(request,response){
     let darkSky_url = `https://api.darksky.net/forecast/${darkSky_key}/${latitude},${longitude}`;
     superagent.get(darkSky_url)
       .then(weatherobj =>  {
-        // console.log('this is my wwwweather response array', weatherobj.body.daily.data);
         const weatherresponseData = weatherobj.body.daily.data;
         const weatherresponseArray = weatherresponseData.map(obj => new WeatherObject(obj));
         response.status(200).json(weatherresponseArray);
@@ -182,37 +176,32 @@ function moviesHandler(request,response){
     .catch(() => errorHandler ('So sorry, the movie handler is not working', request, response));
 }
 
-// function yelpHandler ( request, response) {
-//   let city = request.query.search_query;
-//   let yelpapi_key = process.env.YELP_API_KEY;
-//   // const yelpclient = yelp.client(yelpapi_key);
-//   const yelp_url = `https://api.yelp.com/v3/businesses/search?restaurant&location=${city}}`;
+function yelpHandler (request, response) {
+  let city = request.query.search_query;
+  let yelpapi_key = process.env.YELP_API_KEY;
+  const yelp_url = `https://api.yelp.com/v3/businesses/search?restaurant&location=${city}}`;
 
-//   superagent.get(yelp_url)
-//   .set(`Authorization`, `Bearer ${yelpapi_key}`)
-//   // yelpclient.search(searchRequest)
-//   .then(response => {
-//     const firstResult = response.jsonBody.businesses[0];
-//     const yelpData = JSON.stringify(firstResult, null, 4);
-//     console.log('this is from the copied stuff pretty json', yelpData);
-//     // const yelpreviewsArray = new YelpReviews(obj);
-//     // const yelpreviewsArray = yelpData.map((obj) => new YelpReviews(obj));
-//     // response.status(200).json(new YelpReviews(obj));
-//   })
-//   .catch(() => errorHandler ('So sorry, the yelp handler is not working', request, response));
-// }
+  superagent.get(yelp_url)
+  .set({'Authorization': `Bearer ${yelpapi_key}`})
+  // yelpclient.search(searchRequest)
+  .then(yelpresults => {
+    let yelpparsedresults = JSON.parse(yelpresults.text);
+    let yelpparsedresultArray = yelpparsedresults.businesses;
+    const yelpreviewsArray = yelpparsedresultArray.map((obj) => new YelpReviews(obj));
+    response.status(200).json(yelpreviewsArray);
+  })
+  .catch(() => errorHandler ('So sorry, the yelp handler is not working', request, response));
+}
 
 
 function trailHandler (request, response) {
   console.log('trying the trail handler');
   let lat = request.query.latitude;
   let lon = request.query.longitude;
-  console.log('this is lat', lat, 'this is lon', lon);
   let trailapi_key = process.env.TRAIL_API_KEY;
   let trail_url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&maxDistance=10&key=${trailapi_key}`;
   superagent.get(trail_url)
   .then(trailresults => {
-    console.log('these are the results in body', trailresults.body.trails);
     let trailResultsArray = trailresults.body.trails;
     const trailsArray = trailResultsArray.map((obj) => new Trails(obj));
     response.status(200).json(trailsArray);
