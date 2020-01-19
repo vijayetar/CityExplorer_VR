@@ -15,8 +15,6 @@ const constructNewArray = require('./lib/global/constructorArray function');
 const errorHandler = require('./lib/global/errorhandler');
 
 //constructors
-const WeatherObject = require('./lib/weather/weather_WeatherObject_constructor');
-const Event = require('./lib/events/events_Event_constructor');
 const MoviesInfo = require('./lib/movies/movies_MoviesInfo_constructor');
 const YelpReviews = require('./lib/yelp/yelp_YelpReviews_constructor');
 const Trails = require('./lib/trails/trails_Trails_constructor');
@@ -26,6 +24,8 @@ const Trails = require('./lib/trails/trails_Trails_constructor');
 const locationHandler = require('./lib/locations/location_handler');
 
 const weatherHandler = require('./lib/weather/weather_weatherHandler');
+
+const eventHandler = require('./lib/events/events_eventHandler');
 
 /////////////////////////////////////ROUTES/////////////////////////
 app.get('/location',locationHandler);
@@ -39,41 +39,6 @@ app.use('*', nonFoundHandler);
 app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
-
-// function weatherHandler(request,response){
-//   // get data from darksky.json
-//     console.log('the weather data is working');
-//     let latitude = request.query.latitude;
-//     let longitude = request.query.longitude;
-//     let darkSky_key = process.env.DARKSKY_API_KEY;
-//     let darkSky_url = `https://api.darksky.net/forecast/${darkSky_key}/${latitude},${longitude}`;
-//     superagent.get(darkSky_url)
-//       .then(weatherobj =>  {
-//         const weatherresponseData = weatherobj.body.daily.data;
-//         const weatherresponseArray = constructNewArray(weatherresponseData, WeatherObject);
-//         response.status(200).json(weatherresponseArray);
-//       })
-//       .catch(()  => { 
-//         errorHandler ('So sorry Weather handler not working', request, response)
-//       });
-// }
-
-function eventHandler(request,response){
-  console.log('running the eventful handler',request.query.search_query);
-  let city = request.query.search_query;
-  let eventful_key = process.env.EVENTFUL_API_KEY;
-  let event_url = `http://api.eventful.com/json/events/search?keywords=music&location=${city}&app_key=${eventful_key}`;
-  superagent.get(event_url)
-  .then (eventfulresults => {
-    let eventfulparsedresults = JSON.parse(eventfulresults.text);
-    let eventfulparsedresultsArray = eventfulparsedresults.events.event;
-    const eventfulresultsArray = constructNewArray( eventfulparsedresultsArray, Event);
-    response.status(200).json(eventfulresultsArray);
-  })
-  .catch(() => {
-    errorHandler ('So, sorry, the eventful Handler is not working', request, response)
-  });
-}
 
 function moviesHandler(request,response){
   let city = request.query.search_query;
