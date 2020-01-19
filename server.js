@@ -7,12 +7,15 @@ const PORT = process.env.PORT || 3001;
 const superagent = require('superagent');
 const cors = require('cors');
 app.use(cors());  
-const pg = require('pg');
-const client = new pg.Client(process.env.DATABASE_URL);
-client.on('error', err => console.error(err));
-const yelp = require('yelp-fusion');
 
 ///////////////////////////LIBRARIES /////////////////////////////////////
+const client = require('./lib/global/client');
+const constructNewArray = require('./lib/global/constructorArray function');
+// const locationHandler = require('./lib/locations/locationhandler');
+const errorHandler = require('./lib/global/errorhandler');
+
+//////// global functions////
+
 
 
 ////////////////////////// CONSTRUCTORS///////////////////////////////////
@@ -24,6 +27,8 @@ function MapObject (city, geoData) {
   this.latitude= geoData.lat;
   this.longitude = geoData.lon;
 }
+
+
 
 /// weather constructor
 function WeatherObject (weather) {
@@ -87,44 +92,43 @@ app.use(errorHandler);
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
 
 function locationHandler (request,response){
-    let city = request.query.city;
-    let sql = 'SELECT * FROM city_explorer WHERE search_query = $1;';
-    let safeValues = [city];
-    client.query (sql, safeValues)
-      .then (results  => {
-        // console.log ('this is the city:',results,'this is rows', results.rows);
-        if (results.rows.length>0){
-          console.log('found results in db');
-          response.send(results.rows[0]);
-          return;
-        }
-        else {
-          console.log('could not find in the db going to the api');
-          let locationIQ_key = process.env.LOCATION_IQ_KEY;
-          let locationIQ_url = `https://us1.locationiq.com/v1/search.php?key=${locationIQ_key}&q=${city}&format=json&limit=1`;
+  let city = request.query.city;
+  let sql = 'SELECT * FROM city_explorer WHERE search_query = $1;';
+  let safeValues = [city];
+  client.query (sql, safeValues)
+    .then (results  => {
+      // console.log ('this is the city:',results,'this is rows', results.rows);
+      if (results.rows.length>0){
+        console.log('found results in db');
+        response.send(results.rows[0]);
+        return;
+      }
+      else {
+        console.log('could not find in the db going to the api');
+        let locationIQ_key = process.env.LOCATION_IQ_KEY;
+        let locationIQ_url = `https://us1.locationiq.com/v1/search.php?key=${locationIQ_key}&q=${city}&format=json&limit=1`;
 
-          superagent.get (locationIQ_url)
-          .then(locresults => {
-            console.log("I got the newlocationHandler going");
-            const geoData = locresults.body[0];
-            console.log('this is the geoData', geoData);
-            const mapObject = new MapObject(city, geoData);
-            console.log('this is ')
-            let sql2 = `INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
-            let safeValues = [mapObject.search_query, mapObject.formatted_query, mapObject.latitude, mapObject.longitude];
-            client.query(sql2, safeValues);
-            response.status(200).json(mapObject);
-          })
-          .catch(() => {
-            errorHandler ('So sorry deeper Location handler here', request, response);
-          })
-        }
-      })
-      .catch(() => {
-        errorHandler ('So sorry outside Location handler here', request, response);
-      })
+        superagent.get (locationIQ_url)
+        .then(locresults => {
+          console.log("I got the newlocationHandler going");
+          const geoData = locresults.body[0];
+          console.log('this is the geoData', geoData);
+          const mapObject = new MapObject(city, geoData);
+          console.log('this is ')
+          let sql2 = `INSERT INTO city_explorer (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
+          let safeValues = [mapObject.search_query, mapObject.formatted_query, mapObject.latitude, mapObject.longitude];
+          client.query(sql2, safeValues);
+          response.status(200).json(mapObject);
+        })
+        .catch(() => {
+          errorHandler ('So sorry deeper Location handler here', request, response);
+        })
+      }
+    })
+    .catch(() => {
+      errorHandler ('So sorry outside Location handler here', request, response);
+    })
 }
-
 
 function weatherHandler(request,response){
   // get data from darksky.json
@@ -136,7 +140,7 @@ function weatherHandler(request,response){
     superagent.get(darkSky_url)
       .then(weatherobj =>  {
         const weatherresponseData = weatherobj.body.daily.data;
-        const weatherresponseArray = weatherresponseData.map(obj => new WeatherObject(obj));
+        const weatherresponseArray = constructNewArray(weatherresponseData, WeatherObject);
         response.status(200).json(weatherresponseArray);
       })
       .catch(()  => { 
@@ -153,8 +157,7 @@ function eventHandler(request,response){
   .then (eventfulresults => {
     let eventfulparsedresults = JSON.parse(eventfulresults.text);
     let eventfulparsedresultsArray = eventfulparsedresults.events.event;
-    // console.log(`eventful results for ${city}`, eventfulparsedresultsArray);
-    const eventfulresultsArray = eventfulparsedresultsArray.map((obj) => new Event(obj));
+    const eventfulresultsArray = constructNewArray( eventfulparsedresultsArray, Event);
     response.status(200).json(eventfulresultsArray);
   })
   .catch(() => {
@@ -170,7 +173,7 @@ function moviesHandler(request,response){
     .then (allmovieresults => {
       // console.log('these are movie results in the body', allmovieresults.body);
       let movieresults = allmovieresults.body.results;
-      const movieresultsArray = movieresults.map((movieobj) => new MoviesInfo(movieobj));
+      const movieresultsArray = constructNewArray (movieresults, MoviesInfo);
       response.status(200).json(movieresultsArray);
     })
     .catch(() => errorHandler ('So sorry, the movie handler is not working', request, response));
@@ -187,7 +190,7 @@ function yelpHandler (request, response) {
   .then(yelpresults => {
     let yelpparsedresults = JSON.parse(yelpresults.text);
     let yelpparsedresultArray = yelpparsedresults.businesses;
-    const yelpreviewsArray = yelpparsedresultArray.map((obj) => new YelpReviews(obj));
+    const yelpreviewsArray = constructNewArray (yelpparsedresultArray, YelpReviews);
     response.status(200).json(yelpreviewsArray);
   })
   .catch(() => errorHandler ('So sorry, the yelp handler is not working', request, response));
@@ -203,7 +206,7 @@ function trailHandler (request, response) {
   superagent.get(trail_url)
   .then(trailresults => {
     let trailResultsArray = trailresults.body.trails;
-    const trailsArray = trailResultsArray.map((obj) => new Trails(obj));
+    const trailsArray = constructNewArray (trailResultsArray, Trails);
     response.status(200).json(trailsArray);
   })
   .catch(() => errorHandler('So sorry, the trail handler did not work', request, response));
@@ -211,16 +214,13 @@ function trailHandler (request, response) {
 
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
-function errorHandler(error, request, response) {
-  console.log('ERROR',error);
-  response.status(500).send(error);
-}
+
 
 function nonFoundHandler(request, response) {response.status(404).send('this route does not exist')
 };
 
 
-// // Connect to DB and Start the Web Server
+//////////// Connect to DB and Start the Web Server
 client.connect()
   .then( () => {
     app.listen(PORT, () => {
