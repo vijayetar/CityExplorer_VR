@@ -10,6 +10,7 @@ app.use(cors());
 const pg = require('pg');
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.error(err));
+const yelp = require('yelp-fusion');
 
 ///////////////////////////LIBRARIES /////////////////////////////////////
 
@@ -39,7 +40,6 @@ function Event(eventData) {
 }
 
 // movie constructor
-
 function MoviesInfo (movieData) {
   this.title = movieData.original_title;
   this.overview = movieData.overview;
@@ -50,6 +50,32 @@ function MoviesInfo (movieData) {
   this.released_on = movieData.release_date;
 }
 
+// yelp review constructor
+function YelpReviews (yelpData) {
+  this.name = yelpData.name;
+  this.image_url = yelpData.image_url;
+  this.price = yelpData.price;
+  this.rating = yelpData.rating;
+  this.url = yelpData.url;
+}
+
+function Trails (traildata) {
+  this.name = traildata.name;
+  this.location = traildata.location;
+  this.length = traildata.length;
+  this.stars = traildata.stars;
+  this.star_votes = traildata.starVotes;
+  this.summary = traildata.summary;
+  this.trail_url= traildata.url;
+  this.conditions = traildata.conditionStatus;
+  this.condition_date = traildata.conditionDate.slice(0,11);
+  this.condition_time = traildata.conditionDate.slice(12,21);
+}
+
+// "condition_date": "2018-07-21",
+// "condition_time": "0:00:00 
+
+// conditionDate: '1970-01-01 00:00:00'
 
 /////////////////////////////////////ROUTES/////////////////////////
 
@@ -57,6 +83,8 @@ app.get('/location',locationHandler);
 app.get('/weather', weatherHandler);
 app.get('/events', eventHandler);
 app.get('/movies', moviesHandler);
+// app.get('/yelp', yelpHandler);
+app.get('/trails', trailHandler);
 
 app.use('*', nonFoundHandler);
 app.use(errorHandler);
@@ -146,13 +174,52 @@ function moviesHandler(request,response){
   let movies_url = `https://api.themoviedb.org/3/search/movie?api_key=${moviesdb_key}&language=en-US&query=${city}`;
   superagent.get(movies_url)
     .then (allmovieresults => {
-      console.log('these are movie results in the body', allmovieresults.body);
+      // console.log('these are movie results in the body', allmovieresults.body);
       let movieresults = allmovieresults.body.results;
       const movieresultsArray = movieresults.map((movieobj) => new MoviesInfo(movieobj));
       response.status(200).json(movieresultsArray);
     })
     .catch(() => errorHandler ('So sorry, the movie handler is not working', request, response));
 }
+
+// function yelpHandler ( request, response) {
+//   let city = request.query.search_query;
+//   let yelpapi_key = process.env.YELP_API_KEY;
+//   // const yelpclient = yelp.client(yelpapi_key);
+//   const yelp_url = `https://api.yelp.com/v3/businesses/search?restaurant&location=${city}}`;
+
+//   superagent.get(yelp_url)
+//   .set(`Authorization`, `Bearer ${yelpapi_key}`)
+//   // yelpclient.search(searchRequest)
+//   .then(response => {
+//     const firstResult = response.jsonBody.businesses[0];
+//     const yelpData = JSON.stringify(firstResult, null, 4);
+//     console.log('this is from the copied stuff pretty json', yelpData);
+//     // const yelpreviewsArray = new YelpReviews(obj);
+//     // const yelpreviewsArray = yelpData.map((obj) => new YelpReviews(obj));
+//     // response.status(200).json(new YelpReviews(obj));
+//   })
+//   .catch(() => errorHandler ('So sorry, the yelp handler is not working', request, response));
+// }
+
+
+function trailHandler (request, response) {
+  console.log('trying the trail handler');
+  let lat = request.query.latitude;
+  let lon = request.query.longitude;
+  console.log('this is lat', lat, 'this is lon', lon);
+  let trailapi_key = process.env.TRAIL_API_KEY;
+  let trail_url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&maxDistance=10&key=${trailapi_key}`;
+  superagent.get(trail_url)
+  .then(trailresults => {
+    console.log('these are the results in body', trailresults.body.trails);
+    let trailResultsArray = trailresults.body.trails;
+    const trailsArray = trailResultsArray.map((obj) => new Trails(obj));
+    response.status(200).json(trailsArray);
+  })
+  .catch(() => errorHandler('So sorry, the trail handler did not work', request, response));
+}
+
 //////////////////////////ERROR HANDLER //////////////////////////////////
 
 function errorHandler(error, request, response) {
