@@ -9,74 +9,18 @@ const cors = require('cors');
 app.use(cors());  
 
 ///////////////////////////LIBRARIES /////////////////////////////////////
+//global
 const client = require('./lib/global/client');
 const constructNewArray = require('./lib/global/constructorArray function');
-// const locationHandler = require('./lib/locations/locationhandler');
 const errorHandler = require('./lib/global/errorhandler');
 
-//////// global functions////
-
-
-
-////////////////////////// CONSTRUCTORS///////////////////////////////////
-
-//location constructor
-function MapObject (city, geoData) {
-  this.search_query = city;
-  this.formatted_query = geoData.display_name;
-  this.latitude= geoData.lat;
-  this.longitude = geoData.lon;
-}
-
-
-
-/// weather constructor
-function WeatherObject (weather) {
-  this.forecast = weather.summary;
-  this.time = new Date(weather.time*1000).toString().slice(0,15);
-}
-
-// event constructor
-function Event(eventData) {
-  this.name = eventData.title;
-  this.event_date = eventData.start_time.slice(0,10);
-  this.link = eventData.url;
-  this.summary = eventData.description;
-}
-
-// movie constructor
-function MoviesInfo (movieData) {
-  this.title = movieData.original_title;
-  this.overview = movieData.overview;
-  this.average_votes = movieData.vote_average;
-  this.total_votes = movieData.vote_count;
-  this.image_url = `https://image.tmdb.org/t/p/w500${movieData.backdrop_path}`;
-  this.popularity = movieData.popularity;
-  this.released_on = movieData.release_date;
-}
-
-// yelp review constructor
-function YelpReviews (yelpData) {
-  this.name = yelpData.name;
-  this.image_url = yelpData.image_url;
-  this.price = yelpData.price;
-  this.rating = yelpData.rating;
-  this.url = yelpData.url;
-}
-
-//new trail constructor
-function Trails (traildata) {
-  this.name = traildata.name;
-  this.location = traildata.location;
-  this.length = traildata.length;
-  this.stars = traildata.stars;
-  this.star_votes = traildata.starVotes;
-  this.summary = traildata.summary;
-  this.trail_url= traildata.url;
-  this.conditions = traildata.conditionStatus;
-  this.condition_date = traildata.conditionDate.slice(0,11);
-  this.condition_time = traildata.conditionDate.slice(12,21);
-}
+//constructors
+const MapObject = require('./lib/locations/location_MapObject_constructor');
+const WeatherObject = require('./lib/weather/weather_WeatherObject_constructor');
+const Event = require('./lib/events/events_Event_constructor');
+const MoviesInfo = require('./lib/movies/movies_MoviesInfo_constructor');
+const YelpReviews = require('./lib/yelp/yelp_YelpReviews_constructor');
+const Trails = require('./lib/trails/trails_Trails_constructor');
 
 /////////////////////////////////////ROUTES/////////////////////////
 app.get('/location',locationHandler);
