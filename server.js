@@ -15,7 +15,6 @@ const constructNewArray = require('./lib/global/constructorArray function');
 const errorHandler = require('./lib/global/errorhandler');
 
 //constructors
-const YelpReviews = require('./lib/yelp/yelp_YelpReviews_constructor');
 const Trails = require('./lib/trails/trails_Trails_constructor');
 
 //handlers
@@ -27,6 +26,8 @@ const weatherHandler = require('./lib/weather/weather_weatherHandler');
 const eventHandler = require('./lib/events/events_eventHandler');
 
 const moviesHandler = require('./lib/movies/movies_moviesHandler');
+
+const yelpHandler = require('./lib/yelp/yelp_yelpHandler');
 
 /////////////////////////////////////ROUTES/////////////////////////
 app.get('/location',locationHandler);
@@ -40,23 +41,6 @@ app.use('*', nonFoundHandler);
 app.use(errorHandler);
 
 ///////////////////////////HANDLER FUNCTIONS//////////////////////////////
-
-
-function yelpHandler (request, response) {
-  let city = request.query.search_query;
-  let yelpapi_key = process.env.YELP_API_KEY;
-  const yelp_url = `https://api.yelp.com/v3/businesses/search?restaurant&location=${city}}`;
-
-  superagent.get(yelp_url)
-  .set({'Authorization': `Bearer ${yelpapi_key}`})
-  .then(yelpresults => {
-    let yelpparsedresults = JSON.parse(yelpresults.text);
-    let yelpparsedresultArray = yelpparsedresults.businesses;
-    const yelpreviewsArray = constructNewArray (yelpparsedresultArray, YelpReviews);
-    response.status(200).json(yelpreviewsArray);
-  })
-  .catch(() => errorHandler ('So sorry, the yelp handler is not working', request, response));
-}
 
 
 function trailHandler (request, response) {
