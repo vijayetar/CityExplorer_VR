@@ -59,30 +59,23 @@ function YelpReviews (yelpData) {
   this.url = yelpData.url;
 }
 
-// function Trails (traildata) {
-//   this.name = 
-//   this.location = 
-//   this.length = 
-//   this.stars = 
-//   this.star_votes = 
-//   this.summary = 
-//   this.trail_url= 
-//   this.conditions = 
-//   this.condition_date = 
-//   this.condition_time = 
-// }
+function Trails (traildata) {
+  this.name = traildata.name;
+  this.location = traildata.location;
+  this.length = traildata.length;
+  this.stars = traildata.stars;
+  this.star_votes = traildata.starVotes;
+  this.summary = traildata.summary;
+  this.trail_url= traildata.url;
+  this.conditions = traildata.conditionStatus;
+  this.condition_date = traildata.conditionDate.slice(0,11);
+  this.condition_time = traildata.conditionDate.slice(12,21);
+}
 
-
-// "name": "Rattlesnake Ledge",
-// "location": "Riverbend, Washington",
-// "length": "4.3",
-// "stars": "4.4",
-// "star_votes": "84",
-// "summary": "An extremely popular out-and-back hike to the viewpoint on Rattlesnake Ledge.",
-// "trail_url": "https://www.hikingproject.com/trail/7021679/rattlesnake-ledge",
-// "conditions": "Dry: The trail is clearly marked and well maintained.",
 // "condition_date": "2018-07-21",
 // "condition_time": "0:00:00 
+
+// conditionDate: '1970-01-01 00:00:00'
 
 /////////////////////////////////////ROUTES/////////////////////////
 
@@ -214,12 +207,15 @@ function trailHandler (request, response) {
   console.log('trying the trail handler');
   let lat = request.query.latitude;
   let lon = request.query.longitude;
+  console.log('this is lat', lat, 'this is lon', lon);
   let trailapi_key = process.env.TRAIL_API_KEY;
-  // let trail_url = `https://www.hikingproject.com/data/get-trails?${lat}&lon=${lon}&key=${trailapi_key}`;
-  let trail_url = `https://www.hikingproject.com/data/get-campgrounds?${lat}&lon=${lon}&maxDistance=100&key=${trailapi_key}`;
+  let trail_url = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lon}&maxDistance=10&key=${trailapi_key}`;
   superagent.get(trail_url)
   .then(trailresults => {
-    console.log('these are the results in body', trailresults.body);
+    console.log('these are the results in body', trailresults.body.trails);
+    let trailResultsArray = trailresults.body.trails;
+    const trailsArray = trailResultsArray.map((obj) => new Trails(obj));
+    response.status(200).json(trailsArray);
   })
   .catch(() => errorHandler('So sorry, the trail handler did not work', request, response));
 }
