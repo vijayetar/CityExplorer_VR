@@ -153,6 +153,26 @@ Estimate of time needed to complete: __1hour___
 
 Start time: ___1000
 
-Finish time: _____
+Finish time: __1200___
 
-Actual time needed to complete: ____
+Actual time needed to complete: __2 hours__
+
+Number and name of feature: ___Lab 9: Feature Three___________________________
+
+Estimate of time needed to complete: __1hour___
+
+Start time: ___1200
+
+Finish time: __1300___
+
+Actual time needed to complete: __1 hours__
+
+Number and name of feature: ___Lab 9: Feature Four___________________________
+
+Estimate of time needed to complete: __1hour___
+
+Start time: ___1300
+
+Finish time: __1500___
+
+Actual time needed to complete: __3 hours__
